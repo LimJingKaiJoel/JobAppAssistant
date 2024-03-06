@@ -23,7 +23,6 @@ job_app_asst : final model with all 3 models (bagged both embedding models with 
 accuracy check on:
 1. job_app_asst
 2. tf-idf (to see if it's better without the embedding models)
-3. 
 
 the reason why cos similiarity scores are so high on the bagged embedding models is because they are normalised to 1 individually
 ie. the highest score is set to 1 for each model then averaged
