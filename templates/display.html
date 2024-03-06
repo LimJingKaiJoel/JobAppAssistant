@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Job Recommendations</title>
+</head>
+<body>
+    <h1>Your Top 5 Job Recommendations</h1>
+    <ul>
+        {% for recommendation in recommendations %}
+            <li>
+                <strong>{{ recommendation.jobtitle }}</strong> at {{ recommendation.company }}<br>
+                Description: {{ recommendation.jobdescription }}<br>
+                Similarity Score: {{ recommendation.similarity_score }}%<br>
+                <strong>Top Contributing Words:</strong>
+                <ul>
+                    {% for word, score in recommendation.top_words %}
+                        <li>{{ word }}: {{ '%.3f' | format(score) }}</li>
+                    {% endfor %}
+                </ul>
+            </li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
