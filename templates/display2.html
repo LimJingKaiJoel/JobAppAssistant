@@ -8,9 +8,10 @@
     <ul>
         {% for recommendation in recommendations %}
             <li>
-                <strong>{{ recommendation.jobtitle }}</strong> at {{ recommendation.company }}<br>
-                Description: {{ recommendation.jobdescription }}<br>
+                <strong>{{ recommendation.jobtitle }}</strong> at {{ recommendation.company }}<br><br>
+                Link: {{ recommendation.jobdescription }}<br><br>
                 Similarity Score: {{ recommendation.similarity_score }}%<br>
+            </br>
             </li>
         {% endfor %}
     </ul>

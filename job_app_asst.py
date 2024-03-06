@@ -16,12 +16,14 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 
 app = Flask(__name__)
 
-# Define the folder where uploaded resumes will be stored
+# CHANGE THIS TO YOUR RESUME
 UPLOAD_FOLDER = 'test-resume'
-# Path to the CSV file containing job descriptions
-JOB_DESCRIPTIONS_CSV_PATH = 'download_this_dataset/jd.csv'
+# CHANGE THIS TO YOUR JOB DESCRIPTION TEST SET (WEB-SCRAPED DATA)
+JOB_DESCRIPTIONS_CSV_PATH = 'web_scraped_data/data.csv'
 # Directory to store precomputed embeddings
 PRECOMPUTED_DATA_DIR = 'precomputed_data'
+# column name for your dataset
+JOB_TITLE = 'Title'
 # File path for precomputed embeddings
 EMBEDDINGS_FILE_miniLM = os.path.join(PRECOMPUTED_DATA_DIR, 'job_descriptions_embeddings_miniLM.joblib')
 EMBEDDINGS_FILE_distilbert = os.path.join(PRECOMPUTED_DATA_DIR, 'job_descriptions_embeddings_distilbert.joblib')
@@ -33,10 +35,11 @@ nltk.download('punkt')
 nltk.download('stopwords')
 nltk.download('wordnet')
 
-# Ensure necessary directories exist
+# ensure necessary directories exist
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(PRECOMPUTED_DATA_DIR, exist_ok=True)
 
+# this function does nlp standard text preprocessing, word_level tokenization, lemmatization and removing of stopwords
 def preprocess_text(text):
     text = text.lower()
     text = re.sub(r'\W', ' ', text)
@@ -45,14 +48,15 @@ def preprocess_text(text):
     stopwords_set = set(stopwords.words('english'))
     return ' '.join(lemmatizer.lemmatize(word) for word in tokens if word not in stopwords_set)
 
+# this function applies the preprocessing function to job descriptions, and saves the embeddings of embedding models to a file
 def preprocess_and_save_embeddings(csv_path, embeddings_path1, embeddings_path2):
     # only runs if embedding_path doesn't exist
     if not os.path.exists(embeddings_path1) or not os.path.exists(embeddings_path2):
         df = pd.read_csv(csv_path)
-        df['jobdescription'] = df['jobdescription'].fillna('')
+        df[JOB_TITLE] = df[JOB_TITLE].fillna('')
         
         # change this line to remove text preprocessing for embedding models
-        descriptions = df['jobdescription'].apply(preprocess_text).tolist()
+        descriptions = df[JOB_TITLE].apply(preprocess_text).tolist()
         
         model1 = SentenceTransformer('all-MiniLM-L6-v2')
         model2 = SentenceTransformer('distilbert-base-nli-stsb-mean-tokens')
@@ -64,57 +68,53 @@ def preprocess_and_save_embeddings(csv_path, embeddings_path1, embeddings_path2)
 
         print(f"Embeddings saved to {embeddings_path1}\nEmbeddings also saved to {embeddings_path2}")
 
+# this function checks if the filename is valid
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
+# this function uses fitz module to extract text from pdf
 def extract_text_from_pdf(pdf_path):
     doc = fitz.open(pdf_path)
     return "".join(page.get_text() for page in doc)
 
-# Load or precompute embeddings
-preprocess_and_save_embeddings(JOB_DESCRIPTIONS_CSV_PATH, EMBEDDINGS_FILE_miniLM, EMBEDDINGS_FILE_distilbert)
-job_descriptions_embeddings1 = joblib.load(EMBEDDINGS_FILE_miniLM)
-job_descriptions_embeddings2 = joblib.load(EMBEDDINGS_FILE_distilbert)
-
-# save vectorizer and tfidf_matrix to precomputed data folder
+# function to save vectorizer and tfidf_matrix to precomputed data folder
 def preprocess_and_save_job_descriptions(csv_path, save_path):
     df = pd.read_csv(csv_path)
-    df['jobdescription'] = df['jobdescription'].fillna('')
+    df[JOB_TITLE] = df[JOB_TITLE].fillna('')
 
     # change this to remove preprocessing for tf_idf, but i think should keep just for tf-idf
-    job_descriptions = df['jobdescription'].apply(preprocess_text).tolist()
+    job_descriptions = df[JOB_TITLE].apply(preprocess_text).tolist()
     vectorizer = TfidfVectorizer(stop_words='english')
     tfidf_matrix = vectorizer.fit_transform(job_descriptions)
     
     # Save the vectorizer and tfidf_matrix for later use
     joblib.dump(vectorizer, os.path.join(save_path, 'vectorizer.joblib'))
     joblib.dump(tfidf_matrix, os.path.join(save_path, 'tfidf_matrix.joblib'))
-    
+
+# call function to save vectorizer and tfidf_matrix to precomputed data folder
 preprocess_and_save_job_descriptions(JOB_DESCRIPTIONS_CSV_PATH, PRECOMPUTED_DATA_DIR)
 
-# Assuming job_descriptions_embeddings is loaded from joblib.load(EMBEDDINGS_FILE)
-# if job_descriptions_embeddings.ndim > 2:
-#     job_descriptions_embeddings = np.reshape(job_descriptions_embeddings, (job_descriptions_embeddings.shape[0], -1))
-
-# for tfidf
+# function to return vectorizer and tfidf_matrix that was precomputed
 def load_precomputed_data(save_path):
     vectorizer = joblib.load(os.path.join(save_path, 'vectorizer.joblib'))
     tfidf_matrix = joblib.load(os.path.join(save_path, 'tfidf_matrix.joblib'))
     return vectorizer, tfidf_matrix
 
-# Load precomputed data at app start
+# call function to get vectorizer and precomputed tfidf matrix
 vectorizer, precomputed_tfidf_matrix = load_precomputed_data(PRECOMPUTED_DATA_DIR)
 
-def load_job_descriptions(csv_path):
-    return pd.read_csv(csv_path)
+# call function to save embeddings for embedding models, and load it into variable job_descriptions_embeddings
+preprocess_and_save_embeddings(JOB_DESCRIPTIONS_CSV_PATH, EMBEDDINGS_FILE_miniLM, EMBEDDINGS_FILE_distilbert)
+job_descriptions_embeddings1 = joblib.load(EMBEDDINGS_FILE_miniLM)
+job_descriptions_embeddings2 = joblib.load(EMBEDDINGS_FILE_distilbert)
 
 # can don't call this for the bagged model
 def get_top_contributing_words_direct(vectorizer, target_vector, comparison_vector, top_n=10):
     feature_names = vectorizer.get_feature_names_out()
-    # Ensure both vectors are in a flattened array form for direct comparison
+    # ensure both vectors are in a flattened array form for direct comparison
     target_vector_flat = target_vector.toarray().flatten()
     comparison_vector_flat = comparison_vector.toarray().flatten()
-    # Calculate contribution scores by element-wise multiplication of the vectors
+    # calculate contribution scores by element-wise multiplication of the vectors
     contribution_scores = target_vector_flat * comparison_vector_flat
     # Identify the indices of the top 'n' contributing features
     top_indices = contribution_scores.argsort()[-top_n:][::-1]
@@ -144,25 +144,30 @@ def get_job_recommendations(resume_text, precomputed_embedding1, precomputed_emb
     cosine_similarities2 = cosine_similarity(resume_embedding2, precomputed_embedding2)
     cosine_similarities3 = cosine_similarity(resume_tfidf, tfidf_matrix)
 
-    # Initialize the MinMaxScaler
+    # ensure that these 3 are the same shapes for the flatten and normalisation to work
+    # print(cosine_similarities1.shape)
+    # print(cosine_similarities2.shape)
+    # print(cosine_similarities3.shape)
+
+    # normalise the cosine similarity scores for all models
     scaler = MinMaxScaler()
-    # Stack the two similarity scores vertically for the scaler to understand them
+
     # NOTE THAT THIS IS 33% WEIGHTAGE TO TFIDF'S COSINE SIMILARITY. CAN CHANGE TO 50-50 WITH EMBEDDING MODEL
     all_cosine_similarities = np.vstack((cosine_similarities1.flatten(), cosine_similarities2.flatten(), cosine_similarities3.flatten()))
-    # Fit the scaler on the combined set and then transform
     normalized_cosine_similarities = scaler.fit_transform(all_cosine_similarities.T).T
-    # Now, the cosine similarity scores are normalized and we can take their average
+
+    # get averaged of normalised cosine similarities
     bagged_cosine_similarities = np.mean(normalized_cosine_similarities, axis=0)
-    # Reshape back to the original shape if necessary
+
+    # reshape back to the original shape if necessary
     bagged_cosine_similarities = bagged_cosine_similarities.reshape(cosine_similarities1.shape)
 
     top_five = sorted(enumerate(bagged_cosine_similarities[0]), key=lambda x: x[1], reverse=True)[:5]
 
-    df = pd.read_csv(JOB_DESCRIPTIONS_CSV_PATH)
     return [{
-        'company': df.iloc[i]['company'],
-        'jobtitle': df.iloc[i]['jobtitle'],
-        'jobdescription': df.iloc[i]['jobdescription'][40:200],  # Snippet, to change based on how you want to display, can display link too
+        'company': df.iloc[i]['Company'],
+        'jobtitle': df.iloc[i][JOB_TITLE],
+        'jobdescription': df.iloc[i]['Job Link'],  # snippet, to change based on how you want to display, can display link too
         'similarity_score': round(score * 100, 2),
     } for i, score in top_five]
 
@@ -178,11 +183,13 @@ def upload_resume():
         resume_text = extract_text_from_pdf(filename)
 
         # tfidf handling
-        df = load_job_descriptions(JOB_DESCRIPTIONS_CSV_PATH)
+        df = pd.read_csv(JOB_DESCRIPTIONS_CSV_PATH)
+        #print(df)
 
         # call main function
         recommendations = get_job_recommendations(resume_text, job_descriptions_embeddings1, job_descriptions_embeddings2, df, vectorizer, precomputed_tfidf_matrix)
         return render_template('display2.html', recommendations=recommendations)
+    
     return render_template('upload.html')
 
 if __name__ == '__main__':
