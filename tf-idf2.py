@@ -47,6 +47,7 @@ def preprocess_text(text):
     cleaned_tokens = [lemmatizer.lemmatize(word) for word in tokens if word not in stopwords_set]
     return ' '.join(cleaned_tokens)
 
+
 def preprocess_and_save_job_descriptions(csv_path, save_path):
     df = pd.read_csv(csv_path)
     df['jobdescription'] = df['jobdescription'].fillna('')
@@ -71,17 +72,17 @@ vectorizer, precomputed_tfidf_matrix = load_precomputed_data(PRECOMPUTED_DATA_FO
 def load_job_descriptions(csv_path):
     return pd.read_csv(csv_path)
 
-def get_top_contributing_words(vectorizer, tfidf_matrix, target_doc_index, comparison_doc_index, top_n=10):
+def get_top_contributing_words_direct(vectorizer, target_vector, comparison_vector, top_n=10):
     feature_names = vectorizer.get_feature_names_out()
-    # Extract the TF-IDF vector for both the target (resume) and the comparison (job description)
-    target_vector = tfidf_matrix[target_doc_index].toarray().flatten()
-    comparison_vector = tfidf_matrix[comparison_doc_index].toarray().flatten()
-    # Calculate the contribution scores (could be as simple as multiplying the vectors)
-    contribution_scores = target_vector * comparison_vector
-    # Get the top contributing features' indices (sorted by contribution score, descending)
+    # Ensure both vectors are in a flattened array form for direct comparison
+    target_vector_flat = target_vector.toarray().flatten()
+    comparison_vector_flat = comparison_vector.toarray().flatten()
+    # Calculate contribution scores by element-wise multiplication of the vectors
+    contribution_scores = target_vector_flat * comparison_vector_flat
+    # Identify the indices of the top 'n' contributing features
     top_indices = contribution_scores.argsort()[-top_n:][::-1]
-    # Map these indices to their corresponding words and scores
-    top_words = [(feature_names[index], contribution_scores[index]) for index in top_indices if contribution_scores[index] > 0]
+    # Extract the top contributing words and their scores
+    top_words = [(feature_names[i], contribution_scores[i]) for i in top_indices if contribution_scores[i] > 0]
     return top_words
 
 def get_job_recommendations(resume_text, df, vectorizer, tfidf_matrix):
@@ -91,18 +92,20 @@ def get_job_recommendations(resume_text, df, vectorizer, tfidf_matrix):
     recommendations = sorted(enumerate(cosine_similarities[0]), key=lambda x: x[1], reverse=True)[:5]
     
     top_recommendations = []
-    for i, score in recommendations:
-        # i+1 because the first document (index 0) is the resume itself
-        top_words = get_top_contributing_words(vectorizer, tfidf_matrix, 0, i+1, top_n=10)
+    for index, score in recommendations:
+        # Direct comparison of the resume TF-IDF vector with a job description TF-IDF vector
+        job_desc_tfidf_vector = tfidf_matrix[index]
+        top_words = get_top_contributing_words_direct(vectorizer, resume_tfidf, job_desc_tfidf_vector, top_n=10)
         top_recommendations.append({
-            'company': df.iloc[i]['company'],
-            'jobtitle': df.iloc[i]['jobtitle'],
-            'jobdescription': df.iloc[i]['jobdescription'][40:200],
+            'company': df.iloc[index]['company'],
+            'jobtitle': df.iloc[index]['jobtitle'],
+            'jobdescription': df.iloc[index]['jobdescription'][40:200],
             'similarity_score': round(score * 100, 2),
-            'top_words': top_words  # Include the top contributing words in the recommendation
+            'top_words': top_words
         })
     
     return top_recommendations
+
 
 
 def handle_resume_upload(file):

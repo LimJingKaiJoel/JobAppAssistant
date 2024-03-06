@@ -17,11 +17,11 @@ from transformers import AutoTokenizer, AutoModel
 app = Flask(__name__)
 
 # Define the folder where uploaded resumes will be stored
-UPLOAD_FOLDER = '/Users/joellim/Desktop/job_test v3/test-resume'
+UPLOAD_FOLDER = 'test-resume'
 # Path to the CSV file containing job descriptions
-JOB_DESCRIPTIONS_CSV_PATH = '/Users/joellim/Desktop/job_test v3/download_this_dataset/jd.csv'
+JOB_DESCRIPTIONS_CSV_PATH = 'download_this_dataset/jd.csv'
 # Directory to store precomputed embeddings
-EMBEDDINGS_DIR = '/Users/joellim/Desktop/job_test v3/precomputed_data'
+EMBEDDINGS_DIR = 'precomputed_data'
 # File path for precomputed embeddings
 EMBEDDINGS_FILE = os.path.join(EMBEDDINGS_DIR, 'job_descriptions_embeddings_distilbert.joblib')
 

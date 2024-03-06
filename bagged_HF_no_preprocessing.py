@@ -44,12 +44,14 @@ def preprocess_text(text):
     stopwords_set = set(stopwords.words('english'))
     return ' '.join(lemmatizer.lemmatize(word) for word in tokens if word not in stopwords_set)
 
-def preprocess_and_save_embeddings(csv_path, embeddings_path1, embeddings_path2):
+def save_embeddings(csv_path, embeddings_path1, embeddings_path2):
     # only runs if embedding_path doesn't exist
     if not os.path.exists(embeddings_path1) or not os.path.exists(embeddings_path2):
         df = pd.read_csv(csv_path)
         df['jobdescription'] = df['jobdescription'].fillna('')
-        descriptions = df['jobdescription'].apply(preprocess_text).tolist()
+
+        # removed preprocessing
+        descriptions = df['jobdescription'].tolist()
         
         model1 = SentenceTransformer('all-MiniLM-L6-v2')
         model2 = SentenceTransformer('distilbert-base-nli-stsb-mean-tokens')
@@ -69,7 +71,7 @@ def extract_text_from_pdf(pdf_path):
     return "".join(page.get_text() for page in doc)
 
 # Load or precompute embeddings
-preprocess_and_save_embeddings(JOB_DESCRIPTIONS_CSV_PATH, EMBEDDINGS_FILE_miniLM, EMBEDDINGS_FILE_distilbert)
+save_embeddings(JOB_DESCRIPTIONS_CSV_PATH, EMBEDDINGS_FILE_miniLM, EMBEDDINGS_FILE_distilbert)
 job_descriptions_embeddings1 = joblib.load(EMBEDDINGS_FILE_miniLM)
 job_descriptions_embeddings2 = joblib.load(EMBEDDINGS_FILE_distilbert)
 
@@ -80,8 +82,10 @@ job_descriptions_embeddings2 = joblib.load(EMBEDDINGS_FILE_distilbert)
 def get_job_recommendations(resume_text, precomputed_embedding1, precomputed_embedding2):
     model1 = SentenceTransformer('all-MiniLM-L6-v2')
     model2 = SentenceTransformer('distilbert-base-nli-stsb-mean-tokens')
-    resume_embedding1 = model1.encode([preprocess_text(resume_text)])
-    resume_embedding2 = model2.encode([preprocess_text(resume_text)])
+
+    # removed preprocessing
+    resume_embedding1 = model1.encode([resume_text])
+    resume_embedding2 = model2.encode([resume_text])
 
     # Assuming resume_embedding is the result from model.encode([preprocess_text(resume_text)])
     # if resume_embedding.ndim == 1:  # If somehow it's a 1D array
