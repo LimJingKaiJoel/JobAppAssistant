@@ -10,12 +10,12 @@ venv\Scripts\activate (for windows)
 
 to use inside venv:
 python --version
-if the python version in your venv is not the same as the one that you are using: unalias python
+if the python version in your venv is not the same as the one that you are using: select python interpreter / unalias python
 all modules are downloaded inside venv / lib / python 3.11
 
 miniLM.py : miniLM embedding model
 distilbert.py : distilbert embedding model
-tf-idf.py : tf-idf model (works good)
+tf-idf.py : tf-idf model (works good) -- btw there's a top contributing words function that's not used in main file now
 
 bagged_HF : bagged cosine similarity scores given by both miniLM.py and distilbert.py, normalised
 job_app_asst : final model with all 3 models (bagged both embedding models with tf-idf score)
