@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html>
 <head>
     <title>Upload Your Resume</title>
@@ -10,5 +10,104 @@
         <input type="file" id="file" name="file" accept=".pdf">
         <input type="submit" value="Upload Resume">
     </form>
+</body>
+</html> -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Job Application Assistant</title>
+    <!-- Add Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            background-image: url('https://www.paint.org/wp-content/uploads/2019/11/FEB18_WEB_Skyscraper-Building-Sky-VOC_Stock-622954584_Credit-Nikada.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .content {
+            width: 112.5%; /* Increased from 90% to 112.5% */
+            max-width: 500px; /* Increased from 400px to 500px */
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 12.5px; /* Adjusted for aesthetic consistency */
+            box-shadow: 0 5px 7.5px rgba(0, 0, 0, 0.1); /* Adjusted for aesthetic consistency */
+            padding: 25px; /* Increased padding */
+            margin: 25px; /* Increased margin */
+            text-align: center;
+        }
+        .app-name {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12.5px; /* Adjusted gap */
+            font-size: 30px; /* Increased font size */
+            color: #333;
+        }
+        .tagline {
+            font-style: italic;
+            color: #666;
+            font-size: 20px; /* Increased font size */
+            margin-bottom: 37.5px; /* Adjusted margin */
+        }
+        .custom-file-upload {
+            border: 1.25px solid #ccc; /* Adjusted border */
+            display: inline-block;
+            padding: 7.5px 15px; /* Adjusted padding */
+            cursor: pointer;
+            border-radius: 6.25px; /* Adjusted border-radius */
+            background-color: #f8f8f8;
+            margin-bottom: 25px; /* Increased margin */
+            color: #666;
+            font-size: 20px; /* Increased font size */
+        }
+        input[type="file"] {
+            display: none;
+        }
+        input[type="submit"] {
+            width: 100%;
+            background-color: #007bff;
+            color: white;
+            padding: 12.5px; /* Adjusted padding */
+            border: none;
+            border-radius: 6.25px; /* Adjusted border-radius */
+            cursor: pointer;
+            font-size: 20px; /* Increased font size */
+            margin-top: 12.5px; /* Adjusted margin */
+        }
+        input[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <div class="app-name">
+            <i class='fas fa-briefcase' style='font-size:30px'></i> <!-- Adjusted icon size -->
+            Job Application Assistant
+        </div>
+        <div class="tagline">Your path to finding the perfect job starts here</div>
+        <form action="/" method="post" enctype="multipart/form-data">
+            <label for="file" id="uploadLabel" class="custom-file-upload">Choose resume to upload: No file chosen</label>
+            <input type="file" id="file" name="file" accept=".pdf" onchange="updateUploadLabel()">
+            <input type="submit" value="Upload Resume">
+        </form>
+    </div>
+    <script>
+        function updateUploadLabel() {
+            var fileInput = document.getElementById('file');
+            var uploadLabel = document.getElementById('uploadLabel');
+            uploadLabel.textContent = "Choose resume to upload: " + (fileInput.files.length ? fileInput.files[0].name : 'No file chosen');
+        }
+    </script>
 </body>
 </html>
