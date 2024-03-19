@@ -201,10 +201,15 @@ def upload_resume():
         file = request.files.get('file')
         if not file or not allowed_file(file.filename):
             return 'No file part or invalid file extension', 400
+        
+        # #just added this experience level
+        # if request.form.get('experienceLevel'):
+        #     experience_level = request.form.get('experienceLevel')
+        
         filename = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
         file.save(filename)
         resume_text = extract_text_from_pdf(filename)
-          # Perform model evaluation with the extracted text
+        # Perform model evaluation with the extracted text
         evaluation_result = model_evaluation_with_user_input(resume_text)
         # tfidf handling
         df = pd.read_csv(JOB_DESCRIPTIONS_CSV_PATH)

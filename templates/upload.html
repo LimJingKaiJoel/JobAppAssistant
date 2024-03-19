@@ -20,6 +20,7 @@
     <title>Job Application Assistant</title>
     <!-- Add Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body, html {
             height: 100%;
@@ -44,6 +45,15 @@
             padding: 25px; /* Increased padding */
             margin: 25px; /* Increased margin */
             text-align: center;
+        }
+        #experienceLevel {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            gap: 12.5px;
+            margin-left: 100px;
+            margin-bottom: 15px;
         }
         .app-name {
             display: flex;
@@ -97,8 +107,19 @@
         </div>
         <div class="tagline">Your path to finding the perfect job starts here</div>
         <form action="/" method="post" enctype="multipart/form-data">
+            <!-- experience level !-->
+            <select name="experienceLevel" id="experienceLevel" class="form-control text-center w-50">
+                <option value="internship">Internship</option>
+                <option value="entry">Entry Level</option>
+                <option value="associate">Associate</option>
+                <option value="midsenior">Mid-Senior Level</option>
+                <option value="director">Director</option>
+                <option value="executive">Executive</option>
+            </select>
+            <!-- file !-->
             <label for="file" id="uploadLabel" class="custom-file-upload">Choose resume to upload: No file chosen</label>
             <input type="file" id="file" name="file" accept=".pdf" onchange="updateUploadLabel()">
+
             <input type="submit" value="Upload Resume">
         </form>
     </div>
