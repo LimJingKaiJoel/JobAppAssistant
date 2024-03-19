@@ -18,15 +18,40 @@ app = Flask(__name__, template_folder='../templates')
 
 # CHANGE THIS TO YOUR RESUME
 UPLOAD_FOLDER = 'test-resume'
-# CHANGE THIS TO YOUR JOB DESCRIPTION TEST SET (WEB-SCRAPED DATA)
-JOB_DESCRIPTIONS_CSV_PATH = '../web_scraped_data/data.csv'
+# # CHANGE THIS TO YOUR JOB DESCRIPTION TEST SET (WEB-SCRAPED DATA)
+# INTERN_JOB_DESCRIPTIONS_CSV_PATH = './web_scraped_data/InternData.csv'
+# ENTRY_JOB_DESCRIPTIONS_CSV_PATH = './web_scraped_data/EntryData.csv'
+# ASSOCIATE_JOB_DESCRIPTIONS_CSV_PATH = './web_scraped_data/AssociateData.csv'
+# MIDSENIOR_JOB_DESCRIPTIONS_CSV_PATH = './web_scraped_data/MidseniorData.csv'
+# DIRECTOR_JOB_DESCRIPTIONS_CSV_PATH = './web_scraped_data/DirectorData.csv'
+# EXECUTIVE_JOB_DESCRIPTIONS_CSV_PATH = './web_scraped_data/ExecutiveData.csv'
+INTERN_JOB_DESCRIPTIONS_CSV_PATH = './web_scraped_data/InternData.csv'
+ENTRY_JOB_DESCRIPTIONS_CSV_PATH = './web_scraped_data/EntryData.csv'
+SENIOR_JOB_DESCRIPTIONS_CSV_PATH = './web_scraped_data/SeniorData.csv'
+
 # Directory to store precomputed embeddings
 PRECOMPUTED_DATA_DIR = 'precomputed_data'
+
 # column name for your dataset
 JOB_TITLE = 'Title'
+
 # File path for precomputed embeddings
-EMBEDDINGS_FILE_miniLM = os.path.join(PRECOMPUTED_DATA_DIR, 'job_descriptions_embeddings_miniLM.joblib')
-EMBEDDINGS_FILE_distilbert = os.path.join(PRECOMPUTED_DATA_DIR, 'job_descriptions_embeddings_distilbert.joblib')
+EMBEDDINGS_FILE_miniLM_intern = os.path.join(PRECOMPUTED_DATA_DIR, 'job_descriptions_embeddings_miniLM_intern.joblib')
+EMBEDDINGS_FILE_distilbert_intern = os.path.join(PRECOMPUTED_DATA_DIR, 'job_descriptions_embeddings_distilbert_intern.joblib')
+EMBEDDINGS_FILE_miniLM_entry = os.path.join(PRECOMPUTED_DATA_DIR, 'job_descriptions_embeddings_miniLM_entry.joblib')
+EMBEDDINGS_FILE_distilbert_entry = os.path.join(PRECOMPUTED_DATA_DIR, 'job_descriptions_embeddings_distilbert_entry.joblib')
+EMBEDDINGS_FILE_miniLM_senior = os.path.join(PRECOMPUTED_DATA_DIR, 'job_descriptions_embeddings_miniLM_senior.joblib')
+EMBEDDINGS_FILE_distilbert_senior = os.path.join(PRECOMPUTED_DATA_DIR, 'job_descriptions_embeddings_distilbert_senior.joblib')
+
+# File paths for tfidf vectors
+VECTORIZER_FILE_intern = os.path.join(PRECOMPUTED_DATA_DIR, 'vectorizer_intern.joblib')
+TFIDF_MATRIX_FILE_intern = os.path.join(PRECOMPUTED_DATA_DIR, 'tfidf_matrix_intern.joblib')
+
+VECTORIZER_FILE_entry = os.path.join(PRECOMPUTED_DATA_DIR, 'vectorizer_entry.joblib')
+TFIDF_MATRIX_FILE_entry = os.path.join(PRECOMPUTED_DATA_DIR, 'tfidf_matrix_entry.joblib')
+
+VECTORIZER_FILE_senior = os.path.join(PRECOMPUTED_DATA_DIR, 'vectorizer_senior.joblib')
+TFIDF_MATRIX_FILE_senior = os.path.join(PRECOMPUTED_DATA_DIR, 'tfidf_matrix_senior.joblib')
 
 ALLOWED_EXTENSIONS = {'pdf'}
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -78,35 +103,33 @@ def extract_text_from_pdf(pdf_path):
     return "".join(page.get_text() for page in doc)
 
 # function to save vectorizer and tfidf_matrix to precomputed data folder
-def preprocess_and_save_job_descriptions(csv_path, save_path):
+def preprocess_and_save_job_descriptions(csv_path, vectorizer_save_path, tfidf_save_path):
     df = pd.read_csv(csv_path)
     df[JOB_TITLE] = df[JOB_TITLE].fillna('')
 
-    # change this to remove preprocessing for tf_idf, but i think should keep just for tf-idf
     job_descriptions = df[JOB_TITLE].apply(preprocess_text).tolist()
     vectorizer = TfidfVectorizer(stop_words='english')
     tfidf_matrix = vectorizer.fit_transform(job_descriptions)
     
     # Save the vectorizer and tfidf_matrix for later use
-    joblib.dump(vectorizer, os.path.join(save_path, 'vectorizer.joblib'))
-    joblib.dump(tfidf_matrix, os.path.join(save_path, 'tfidf_matrix.joblib'))
-
-# call function to save vectorizer and tfidf_matrix to precomputed data folder
-preprocess_and_save_job_descriptions(JOB_DESCRIPTIONS_CSV_PATH, PRECOMPUTED_DATA_DIR)
+    joblib.dump(vectorizer, vectorizer_save_path)
+    joblib.dump(tfidf_matrix, tfidf_save_path)
 
 # function to return vectorizer and tfidf_matrix that was precomputed
-def load_precomputed_data(save_path):
-    vectorizer = joblib.load(os.path.join(save_path, 'vectorizer.joblib'))
-    tfidf_matrix = joblib.load(os.path.join(save_path, 'tfidf_matrix.joblib'))
+def load_precomputed_data(vectorizer_save_path, tfidf_save_path):
+    vectorizer = joblib.load(vectorizer_save_path)
+    tfidf_matrix = joblib.load(tfidf_save_path)
     return vectorizer, tfidf_matrix
 
-# call function to get vectorizer and precomputed tfidf matrix
-vectorizer, precomputed_tfidf_matrix = load_precomputed_data(PRECOMPUTED_DATA_DIR)
+# call function to save vectorizer and tfidf_matrix to precomputed data folder for each experience level
+preprocess_and_save_job_descriptions(INTERN_JOB_DESCRIPTIONS_CSV_PATH, VECTORIZER_FILE_intern, TFIDF_MATRIX_FILE_intern)
+preprocess_and_save_job_descriptions(ENTRY_JOB_DESCRIPTIONS_CSV_PATH, VECTORIZER_FILE_entry, TFIDF_MATRIX_FILE_entry)
+preprocess_and_save_job_descriptions(SENIOR_JOB_DESCRIPTIONS_CSV_PATH, VECTORIZER_FILE_senior, TFIDF_MATRIX_FILE_senior)
 
 # call function to save embeddings for embedding models, and load it into variable job_descriptions_embeddings
-preprocess_and_save_embeddings(JOB_DESCRIPTIONS_CSV_PATH, EMBEDDINGS_FILE_miniLM, EMBEDDINGS_FILE_distilbert)
-job_descriptions_embeddings1 = joblib.load(EMBEDDINGS_FILE_miniLM)
-job_descriptions_embeddings2 = joblib.load(EMBEDDINGS_FILE_distilbert)
+preprocess_and_save_embeddings(INTERN_JOB_DESCRIPTIONS_CSV_PATH, EMBEDDINGS_FILE_miniLM_intern, EMBEDDINGS_FILE_distilbert_intern)
+preprocess_and_save_embeddings(ENTRY_JOB_DESCRIPTIONS_CSV_PATH, EMBEDDINGS_FILE_miniLM_entry, EMBEDDINGS_FILE_distilbert_entry)
+preprocess_and_save_embeddings(SENIOR_JOB_DESCRIPTIONS_CSV_PATH, EMBEDDINGS_FILE_miniLM_senior, EMBEDDINGS_FILE_distilbert_senior)
 
 # can don't call this for the bagged model
 def get_top_contributing_words_direct(vectorizer, target_vector, comparison_vector, top_n=10):
@@ -203,8 +226,34 @@ def upload_resume():
             return 'No file part or invalid file extension', 400
         
         # #just added this experience level
-        # if request.form.get('experienceLevel'):
-        #     experience_level = request.form.get('experienceLevel')
+        if request.form.get('experienceLevel'):
+            experience_level = request.form.get('experienceLevel')
+
+            # Select the correct CSV and embeddings paths based on the experience level
+            match experience_level:
+                case "internship":
+                    JOB_DESCRIPTIONS_CSV_PATH = INTERN_JOB_DESCRIPTIONS_CSV_PATH
+                    EMBEDDINGS_FILE_miniLM = EMBEDDINGS_FILE_miniLM_intern
+                    EMBEDDINGS_FILE_distilbert = EMBEDDINGS_FILE_distilbert_intern
+                    VECTORIZER_FILE = VECTORIZER_FILE_intern
+                    TFIDF_MATRIX_FILE = TFIDF_MATRIX_FILE_intern
+                case "entry":
+                    JOB_DESCRIPTIONS_CSV_PATH = ENTRY_JOB_DESCRIPTIONS_CSV_PATH
+                    EMBEDDINGS_FILE_miniLM = EMBEDDINGS_FILE_miniLM_entry
+                    EMBEDDINGS_FILE_distilbert = EMBEDDINGS_FILE_distilbert_entry
+                    VECTORIZER_FILE = VECTORIZER_FILE_entry
+                    TFIDF_MATRIX_FILE = TFIDF_MATRIX_FILE_entry
+                case "senior":
+                    JOB_DESCRIPTIONS_CSV_PATH = SENIOR_JOB_DESCRIPTIONS_CSV_PATH
+                    EMBEDDINGS_FILE_miniLM = EMBEDDINGS_FILE_miniLM_senior
+                    EMBEDDINGS_FILE_distilbert = EMBEDDINGS_FILE_distilbert_senior
+                    VECTORIZER_FILE = VECTORIZER_FILE_senior
+                    TFIDF_MATRIX_FILE = TFIDF_MATRIX_FILE_senior
+        
+            # Load the selected embeddings
+            job_descriptions_embeddings1 = joblib.load(EMBEDDINGS_FILE_miniLM)
+            job_descriptions_embeddings2 = joblib.load(EMBEDDINGS_FILE_distilbert)
+            vectorizer, precomputed_tfidf_matrix = load_precomputed_data(VECTORIZER_FILE, TFIDF_MATRIX_FILE)
         
         filename = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
         file.save(filename)
@@ -213,7 +262,6 @@ def upload_resume():
         evaluation_result = model_evaluation_with_user_input(resume_text)
         # tfidf handling
         df = pd.read_csv(JOB_DESCRIPTIONS_CSV_PATH)
-        #print(df)
 
         # call main function
         recommendations = get_job_recommendations(resume_text, job_descriptions_embeddings1, job_descriptions_embeddings2, df, vectorizer, precomputed_tfidf_matrix)
