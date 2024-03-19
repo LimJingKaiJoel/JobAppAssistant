@@ -2,7 +2,7 @@
 FROM python:3.11
 
 # Set the working directory in the container
-WORKDIR /
+WORKDIR /MAIN (RUN THIS)
 
 # Copy the current directory contents into the container at /app
 COPY requirements.txt ./
@@ -13,4 +13,4 @@ COPY . .
 EXPOSE 5000
 
 # Run job_app_asst.py when the container launches
-CMD ["python", "job_app_asst.py"]
+CMD ["python", "app.py"]
