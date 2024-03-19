@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html>
 <head>
     <title>Job Recommendations</title>
@@ -15,5 +15,131 @@
             </li>
         {% endfor %}
     </ul>
+    <div>
+        <h3>Model Evaluation Results</h3>
+        <p>Teacher Model Time: {{ evaluation_result.teacher_time }} seconds</p>
+        <p>Student Model Time: {{ evaluation_result.student_time }} seconds</p>
+        <p>Efficiency Improvement: {{ evaluation_result.efficiency_improvement }} seconds</p>
+    </div>
+</body>
+</html> -->
+
+<!-- <!DOCTYPE html>
+<html>
+<head>
+    <title>Job Recommendations</title>
+</head>
+<body>
+    <h1>Your Top 5 Job Recommendations</h1>
+    <ul>
+        {% for recommendation in recommendations %}
+            <li>
+                <strong>{{ recommendation.jobtitle }}</strong> at {{ recommendation.company }}<br><br>
+                Link: {{ recommendation.jobdescription }}<br><br>
+                Similarity Score: {{ recommendation.similarity_score }}%<br>
+            </br>
+            </li>
+        {% endfor %}
+    </ul>
+  
+</body>
+</html> -->
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Job Recommendations</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #6e8efb, #a777e3); /* Updated background */
+            color: #333;
+        }
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            padding: 20px;
+        }
+        .recommendation-box {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            background: white;
+            border: 2px solid #e1e1e1;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2); /* Enhanced shadow effect */
+            height: 100%;
+            transition: transform 0.3s ease, box-shadow 0.3s ease; /* Smooth transition for hover effect */
+        }
+        .recommendation-box:hover {
+            transform: translateY(-5px); /* Slight lift effect on hover */
+            box-shadow: 0 6px 12px rgba(0,0,0,0.3); /* Enhanced shadow on hover */
+        }
+        .recommendation-box strong {
+            color: #333;
+            font-size: 18px;
+        }
+        .company {
+            color: #666;
+            font-size: 16px;
+        }
+        .description {
+            margin: 10px 0;
+            font-size: 14px;
+            flex-grow: 1;
+        }
+        .view-link {
+            display: block;
+            background-color: #007bff;
+            color: white;
+            padding: 8px 12px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 14px;
+            text-align: center;
+            margin-top: 10px;
+        }
+        .view-link:hover {
+            background-color: #0056b3;
+        }
+        .score {
+            font-weight: bold;
+            color: #0056b3;
+            font-size: 14px;
+            text-align: right;
+        }
+        h1 {
+            text-align: center;
+            color: #fff; /* Ensure the title is visible on the new background */
+        }
+        hr {
+            border-color: #ffffff50; /* Lighter line for separation */
+            margin-bottom: 20px; /* Space before the grid starts */
+        }
+        
+    </style>
+</head>
+<body>
+    <h1>Your Top 5 Job Recommendations</h1>
+    <hr>
+    <div class="grid-container">
+        {% for recommendation in recommendations %}
+        <div class="recommendation-box">
+            <div>
+                <strong>{{ recommendation.jobtitle }}</strong>
+                <div class="company">at {{ recommendation.company }}</div>
+            </div>
+            <div>
+                <a href="{{ recommendation.jobdescription }}" class="view-link" target="_blank">View Job</a><br>
+                <div class="score">Similarity Score: {{ recommendation.similarity_score }}%</div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    
 </body>
 </html>

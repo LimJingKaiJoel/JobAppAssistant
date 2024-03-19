@@ -14,12 +14,12 @@ import numpy as np
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.feature_extraction.text import TfidfVectorizer
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder='../templates')
 
 # CHANGE THIS TO YOUR RESUME
 UPLOAD_FOLDER = 'test-resume'
 # CHANGE THIS TO YOUR JOB DESCRIPTION TEST SET (WEB-SCRAPED DATA)
-JOB_DESCRIPTIONS_CSV_PATH = 'web_scraped_data/data.csv'
+JOB_DESCRIPTIONS_CSV_PATH = '../web_scraped_data/data.csv'
 # Directory to store precomputed embeddings
 PRECOMPUTED_DATA_DIR = 'precomputed_data'
 # column name for your dataset
@@ -171,6 +171,29 @@ def get_job_recommendations(resume_text, precomputed_embedding1, precomputed_emb
         'similarity_score': round(score * 100, 2),
     } for i, score in top_five]
 
+# Load teacher and student models
+teacher_model = SentenceTransformer('distilbert-base-nli-stsb-mean-tokens')
+student_model = SentenceTransformer('all-MiniLM-L6-v2')  # Assuming this is your student model
+import time
+
+def model_evaluation_with_user_input(input_text):
+    start_time_teacher = time.time()
+    teacher_embedding = teacher_model.encode([input_text], convert_to_tensor=True)
+    teacher_time = time.time() - start_time_teacher
+
+    start_time_student = time.time()
+    student_embedding = student_model.encode([input_text], convert_to_tensor=True)
+    student_time = time.time() - start_time_student
+
+    # For simplicity, let's assume we compare based on the computation time here
+    # In a real scenario, you'd also look at the quality of embeddings or task-specific performance metrics
+    evaluation_result = {
+        'teacher_time': teacher_time,
+        'student_time': student_time,
+        'efficiency_improvement': teacher_time - student_time
+    }
+    return evaluation_result
+
 @app.route('/', methods=['GET', 'POST'])
 @app.route('/upload', methods=['POST'])
 def upload_resume():
@@ -181,16 +204,18 @@ def upload_resume():
         filename = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
         file.save(filename)
         resume_text = extract_text_from_pdf(filename)
-
+          # Perform model evaluation with the extracted text
+        evaluation_result = model_evaluation_with_user_input(resume_text)
         # tfidf handling
         df = pd.read_csv(JOB_DESCRIPTIONS_CSV_PATH)
         #print(df)
 
         # call main function
         recommendations = get_job_recommendations(resume_text, job_descriptions_embeddings1, job_descriptions_embeddings2, df, vectorizer, precomputed_tfidf_matrix)
-        return render_template('display2.html', recommendations=recommendations)
+        return render_template('display2.html', recommendations=recommendations, evaluation_result=evaluation_result)
     
     return render_template('upload.html')
+
 
 if __name__ == '__main__':
     app.run(debug=True)
