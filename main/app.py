@@ -25,9 +25,9 @@ UPLOAD_FOLDER = 'test-resume'
 # MIDSENIOR_JOB_DESCRIPTIONS_CSV_PATH = './web_scraped_data/MidseniorData.csv'
 # DIRECTOR_JOB_DESCRIPTIONS_CSV_PATH = './web_scraped_data/DirectorData.csv'
 # EXECUTIVE_JOB_DESCRIPTIONS_CSV_PATH = './web_scraped_data/ExecutiveData.csv'
-INTERN_JOB_DESCRIPTIONS_CSV_PATH = './web_scraped_data/InternData.csv'
-ENTRY_JOB_DESCRIPTIONS_CSV_PATH = './web_scraped_data/EntryData.csv'
-SENIOR_JOB_DESCRIPTIONS_CSV_PATH = './web_scraped_data/SeniorData.csv'
+INTERN_JOB_DESCRIPTIONS_CSV_PATH = '../web_scraped_data/InternData.csv'
+ENTRY_JOB_DESCRIPTIONS_CSV_PATH = '../web_scraped_data/EntryData.csv'
+SENIOR_JOB_DESCRIPTIONS_CSV_PATH = '../web_scraped_data/SeniorData.csv'
 
 # Directory to store precomputed embeddings
 PRECOMPUTED_DATA_DIR = 'precomputed_data'
