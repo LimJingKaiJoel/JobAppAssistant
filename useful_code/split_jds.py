@@ -1,14 +1,14 @@
 import pandas as pd
 
 # change this accordingly
-df = pd.read_csv('./download_this_dataset/FTData.csv')
+df = pd.read_csv('./download_this_dataset/LinkedInData3700.csv')
 
 TITLE_COL = "Title"
 
 # CHANGE THESE TO ADD NEW WORDS : if none of these words appeared, add to junior
 intern_keywords = ['intern', 'internship']
-junior_keywords = ['junior', 'entry']
-senior_keywords = ['senior', 'manager', 'lead']
+junior_keywords = ['junior', 'entry', 'assistant']
+senior_keywords = ['senior', 'manager', 'lead', 'director', 'chief', 'experienced']
 #pt_keywords = ['part-time', 'part time', 'part_time', 'parttime']
 
 # count number of each keyword and find max
@@ -22,12 +22,14 @@ def categorize_row(row, column_name):
     # most appeared word
     max_count = max(intern_count, junior_count, senior_count)
 
-    if max_count == 0 or max_count == junior_count:
+    if max_count == 0:
+        return 'junior'
+    elif max_count == senior_count:
+        return 'senior'
+    elif max_count == junior_count:
         return 'junior'
     elif max_count == intern_count:
         return 'intern'
-    elif max_count == senior_count:
-        return 'senior'
     # elif max_count == pt_count:
     #     return 'pt'
     else:
