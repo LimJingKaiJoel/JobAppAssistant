@@ -25,9 +25,9 @@ UPLOAD_FOLDER = 'test-resume'
 # MIDSENIOR_JOB_DESCRIPTIONS_CSV_PATH = './web_scraped_data/MidseniorData.csv'
 # DIRECTOR_JOB_DESCRIPTIONS_CSV_PATH = './web_scraped_data/DirectorData.csv'
 # EXECUTIVE_JOB_DESCRIPTIONS_CSV_PATH = './web_scraped_data/ExecutiveData.csv'
-INTERN_JOB_DESCRIPTIONS_CSV_PATH = '../InternData.csv'
-ENTRY_JOB_DESCRIPTIONS_CSV_PATH = '../EntryData.csv'
-SENIOR_JOB_DESCRIPTIONS_CSV_PATH = '../SeniorData.csv'
+INTERN_JOB_DESCRIPTIONS_CSV_PATH = '../web_scraped_data/InternData.csv'
+ENTRY_JOB_DESCRIPTIONS_CSV_PATH = '../web_scraped_data/EntryData.csv'
+SENIOR_JOB_DESCRIPTIONS_CSV_PATH = '../web_scraped_data/SeniorData.csv'
 
 # Directory to store precomputed embeddings
 PRECOMPUTED_DATA_DIR = 'precomputed_data'
@@ -272,3 +272,19 @@ def upload_resume():
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True)
+
+
+'''
+scores out of 125:
+
+acc 108
+bd 109
+consulting 112
+digi media 99
+finance 103
+healthcare 92
+hr 120
+clerk 91
+tech 120
+research 105 and 113
+'''
