@@ -1,29 +1,45 @@
 # JobAppAssistant
-Job Application Assistant: bagged transformer-based huggingface embedding models with tf-idf to recommend web-scraped real-time jobs based on uploaded resume.
+Job Application Assistant: Bagged transformer-based huggingface embedding models with tf-idf to recommend web-scraped real-time jobs based on uploaded resume.
 
-main file that's an ensemble of the rest is: job_app_asst.py
-- be careful not to edit and push changes to main as it's working now
+## Figures of the project
+![Landing Page](assets/intern_filter.jpg)
+*Figure 1: Page to update resume for job matching*
 
-activate venv: 
+![Recommendation page](assets/recommendations.jpg)
+*Figure 2: Page with job recommendations according to input resume, with clickable links to the application page*
+
+![Filter](assets/entry_filter.jpg)
+*Figure 3: Option to filter based on Internship, Entry-level, or Senior-level positions*
+
+## Usage
+activate venv--
 source venv/bin/activate (for mac)
 venv\Scripts\activate (for windows)
+install dependencies
 
-to use inside venv:
 python --version
 if the python version in your venv is not the same as the one that you are using: select python interpreter / unalias python
 all modules are downloaded inside venv / lib / python 3.11
 
-miniLM.py : miniLM embedding model
-distilbert.py : distilbert embedding model
-tf-idf.py : tf-idf model (works good) -- btw there's a top contributing words function that's not used in main file now
+## Evaluations
+Evaluation scores based on job relevancy to resume and whether the suggested job is a good progression from their current position.
+    
+    Accounting: 108 / 125
 
-bagged_HF : bagged cosine similarity scores given by both miniLM.py and distilbert.py, normalised
-job_app_asst : final model with all 3 models (bagged both embedding models with tf-idf score)
+    Business development: 109 / 125
 
-accuracy check on:
-1. job_app_asst
-2. tf-idf (to see if it's better without the embedding models)
+    Consulting 112 / 125
 
-the reason why cos similiarity scores are so high on the bagged embedding models is because they are normalised to 1 individually
-ie. the highest score is set to 1 for each model then averaged
+    Digital Media: 99 / 125
 
+    Finance: 103 / 125
+
+    Healthcare: 92 / 125
+
+    Human Resources: 120 / 125
+
+    Administrative: 91 / 125
+
+    Technology: 120 / 125
+
+    Research 105 / 125, 113 / 125 (Average of 109)
